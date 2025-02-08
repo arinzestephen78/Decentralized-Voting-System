@@ -9,3 +9,5 @@ E
 contracts/ballot.clar,1/e/1e7ac4c8b0c3fa04e59c87cb1faadc7d27b40b60
 D
 tests/ballot.test.ts,b/0/b040129f16d2036e824b589480b2e750cbbfae32
+L
+contracts/vote-counting.clar,f/c/fc1ec02532f472c7ec696d4065436f3577a4b784
