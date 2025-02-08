@@ -1,21 +1,97 @@
+import { describe, it, expect, beforeEach } from "vitest"
 
-import { describe, expect, it } from "vitest";
+// Simulating contract state
+let verificationComplete = false
+let verificationResult = false
+const verifiers = new Set<string>()
+const CONTRACT_OWNER = "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM"
 
-const accounts = simnet.getAccounts();
-const address1 = accounts.get("wallet_1")!;
+// Simulating contract functions
+function addVerifier(caller: string, verifier: string) {
+  if (caller !== CONTRACT_OWNER) throw new Error("ERR_NOT_AUTHORIZED")
+  verifiers.add(verifier)
+  return true
+}
 
-/*
-  The test below is an example. To learn more, read the testing documentation here:
-  https://docs.hiro.so/stacks/clarinet-js-sdk
-*/
+function removeVerifier(caller: string, verifier: string) {
+  if (caller !== CONTRACT_OWNER) throw new Error("ERR_NOT_AUTHORIZED")
+  verifiers.delete(verifier)
+  return true
+}
 
-describe("example tests", () => {
-  it("ensures simnet is well initalised", () => {
-    expect(simnet.blockHeight).toBeDefined();
-  });
+function verifyResults(verifier: string, voteCountingContract: string) {
+  if (!verifiers.has(verifier)) throw new Error("ERR_NOT_AUTHORIZED")
+  if (verificationComplete) throw new Error("ERR_VERIFICATION_IN_PROGRESS")
+  // Simulating verification process
+  verificationResult = true
+  verificationComplete = true
+  return true
+}
 
-  // it("shows an example", () => {
-  //   const { result } = simnet.callReadOnlyFn("counter", "get-counter", [], address1);
-  //   expect(result).toBeUint(0);
-  // });
-});
+function resetVerification(caller: string) {
+  if (caller !== CONTRACT_OWNER) throw new Error("ERR_NOT_AUTHORIZED")
+  verificationComplete = false
+  verificationResult = false
+  return true
+}
+
+function isVerifier(verifier: string) {
+  return verifiers.has(verifier)
+}
+
+function getVerificationResult() {
+  return verificationResult
+}
+
+function isVerificationComplete() {
+  return verificationComplete
+}
+
+describe("Result Verification Contract", () => {
+  beforeEach(() => {
+    verificationComplete = false
+    verificationResult = false
+    verifiers.clear()
+  })
+  
+  it("should add verifier", () => {
+    expect(addVerifier(CONTRACT_OWNER, "verifier1")).toBe(true)
+    expect(isVerifier("verifier1")).toBe(true)
+  })
+  
+  it("should remove verifier", () => {
+    addVerifier(CONTRACT_OWNER, "verifier1")
+    expect(removeVerifier(CONTRACT_OWNER, "verifier1")).toBe(true)
+    expect(isVerifier("verifier1")).toBe(false)
+  })
+  
+  it("should verify results", () => {
+    addVerifier(CONTRACT_OWNER, "verifier1")
+    expect(verifyResults("verifier1", "vote_counting_contract")).toBe(true)
+    expect(isVerificationComplete()).toBe(true)
+    expect(getVerificationResult()).toBe(true)
+  })
+  
+  it("should reset verification", () => {
+    addVerifier(CONTRACT_OWNER, "verifier1")
+    verifyResults("verifier1", "vote_counting_contract")
+    expect(resetVerification(CONTRACT_OWNER)).toBe(true)
+    expect(isVerificationComplete()).toBe(false)
+    expect(getVerificationResult()).toBe(false)
+  })
+  
+  it("should not allow non-owner to add verifier", () => {
+    expect(() => addVerifier("nonowner", "verifier1")).toThrow("ERR_NOT_AUTHORIZED")
+  })
+  
+  it("should not allow non-verifier to verify results", () => {
+    expect(() => verifyResults("nonverifier", "vote_counting_contract")).toThrow("ERR_NOT_AUTHORIZED")
+  })
+  
+  it("should not allow verification to start twice", () => {
+    addVerifier(CONTRACT_OWNER, "verifier1")
+    verifyResults("verifier1", "vote_counting_contract")
+    expect(() => verifyResults("verifier1", "vote_counting_contract")).toThrow("ERR_VERIFICATION_IN_PROGRESS")
+  })
+})
+

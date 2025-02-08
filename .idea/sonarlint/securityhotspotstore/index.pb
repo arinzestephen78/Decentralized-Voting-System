@@ -15,3 +15,5 @@ K
 tests/vote-counting.test.ts,7/8/78d38cf5ef74f106c1668234d943a3f4b0f172a6
 R
 "contracts/result-verification.clar,6/6/669436556024d4f6acf3afdf263f4bc6197da65e
+Q
+!tests/result-verification.test.ts,8/0/806e05bc0e188f74c98daecbc68b58ef3fe984a4
