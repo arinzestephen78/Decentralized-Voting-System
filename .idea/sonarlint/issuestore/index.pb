@@ -7,3 +7,5 @@ P
  tests/voter-registration.test.ts,3/b/3b86ee71932407461fee104d0c1c5ddeb402c8f1
 E
 contracts/ballot.clar,1/e/1e7ac4c8b0c3fa04e59c87cb1faadc7d27b40b60
+D
+tests/ballot.test.ts,b/0/b040129f16d2036e824b589480b2e750cbbfae32
